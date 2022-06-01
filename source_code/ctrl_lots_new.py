@@ -3,10 +3,8 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 import resources_rc
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QButtonGroup
-import datetime
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from lots_new import Ui_lots_new
-from objects import In_Log, Out_Log
 import sqlite3
 
 

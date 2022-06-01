@@ -248,18 +248,18 @@ class material_info_window(QMainWindow, Ui_material_info):
             sql += ")"
 
         if self.position_lineEdit.text() != "":
-            spec_ll = self.position_lineEdit.text()
-            spec_ll = spec_ll.strip('%\n\t ')
-            spec_ll = spec_ll.split('%')
-            spec_ll1 = []
-            spec_ll2 = []
-            for tspec in spec_ll:
-                spec_ll1.append("%" + tspec + "%")
-                spec_ll2.append("%%" + tspec + "%%")
+            pos_ll = self.position_lineEdit.text()
+            pos_ll = pos_ll.strip('%\n\t ')
+            pos_ll = pos_ll.split('%')
+            pos_ll1 = []
+            pos_ll2 = []
+            for tpos in pos_ll:
+                pos_ll1.append("%" + tpos + "%")
+                pos_ll2.append("%%" + tpos + "%%")
             sql += " and ("
-            for i in range(len(spec_ll)):
-                sql += "spec like '" + spec_ll1[i] + "' or spec like '" + spec_ll2[i] + "'"
-                if i < len(spec_ll) - 1:
+            for i in range(len(pos_ll)):
+                sql += "pos like '" + pos_ll1[i] + "' or pos like '" + pos_ll2[i] + "'"
+                if i < len(pos_ll) - 1:
                     sql += " or "
             sql += ")"
 

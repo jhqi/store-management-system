@@ -56,7 +56,7 @@ class new_material_window(QMainWindow, Ui_new_material):
                                 str(now_num))
         try:
             tmp_material.insert_new_material()
-            QMessageBox.question(self, '新增成功！', '新物料信息已录入！', QMessageBox.Yes)
+            QMessageBox.question(self, '新增成功！', '新存货信息已录入！', QMessageBox.Yes)
             self.material_name_lineEdit.setText("")
             self.material_id_lineEdit.setText("")
             self.spec_lineEdit.setText("")
@@ -65,7 +65,7 @@ class new_material_window(QMainWindow, Ui_new_material):
             self.position_lineEdit.setText("")
             self.ori_num_lineEdit.setText("")
         except:
-            QMessageBox.question(self, '新增失败！', '物料编码不可重复！', QMessageBox.Yes)
+            QMessageBox.question(self, '新增失败！', '重复，库中已存在该存货编码！', QMessageBox.Yes)
 
     def on_cancel_btn_clicked(self):
         self.close()

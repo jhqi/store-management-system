@@ -207,7 +207,7 @@ class Ui_home(object):
 
     def retranslateUi(self, home):
         _translate = QtCore.QCoreApplication.translate
-        home.setWindowTitle(_translate("home", "库房存货管理系统V1.9.5"))
+        home.setWindowTitle(_translate("home", "库房存货管理系统V1.9.7"))
         self.groupBox.setTitle(_translate("home", "存货操作"))
         self.new_material_pushButton.setText(_translate("home", "单件新增"))
         self.in_material_pushButton.setText(_translate("home", "入库/出库"))

@@ -1,0 +1,13 @@
+0.删除环境变量中有关anaconda的，重启
+1.安装python3.4.4
+2.安装pywin32
+3.安装pyqt5 5.4.0
+4.添加环境变量：C:\Python34
+5.添加环境变量：C:\Python34\Scripts
+6.重启
+7.确保pip可以正常用，测试where pip命令，若出错则：考虑先删除python34文件夹，再打开安装包repair。再卸载，再安装，可以不用升级pip
+
+8.pip install openpyxl==2.3.5 -i https://pypi.douban.com/simple/
+9.pip install pyinstaller==3.0 -i https://pypi.douban.com/simple/
+
+10.在目录下：pyinstaller -w -i images/image.ico main.py

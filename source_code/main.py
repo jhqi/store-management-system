@@ -1,8 +1,11 @@
+import sys
 import os
 import resources_rc
 from sys import argv as SYS_argv
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QApplication
+import var
+import sqlite3
 from home import Ui_home
 from ctrl_new_material import new_material_window
 from ctrl_material_in_out import material_in_log_window
@@ -10,11 +13,10 @@ from ctrl_material_info import material_info_window
 from ctrl_in_info import in_info_window
 from ctrl_out_info import out_info_window
 from ctrl_clear_confirm import clear_confirm_window
-import var
-import sqlite3
 from ctrl_import_confirm import import_confirm_window
-from ctrl_lots_in_out import lots_in_out_window
 from ctrl_lots_new import lots_new_window
+from ctrl_lots_in_out import lots_in_out_window
+
 
 class homeWindow(QMainWindow, Ui_home):
     def on_lots_in_out_btn_clicked(self):
@@ -145,7 +147,8 @@ class homeWindow(QMainWindow, Ui_home):
 
 
     def closeEvent(self, event):
-        quit()
+        event.accept()
+        sys.exit(0)  # 退出程序
 
 
 app = QApplication(SYS_argv)

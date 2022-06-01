@@ -295,7 +295,7 @@ class Ui_material_in_out(object):
         self.list_all_pushButton.setFont(font)
         self.list_all_pushButton.setObjectName("list_all_pushButton")
         self.confirm_label = QtWidgets.QLabel(material_in_out)
-        self.confirm_label.setGeometry(QtCore.QRect(670, 550, 81, 31))
+        self.confirm_label.setGeometry(QtCore.QRect(630, 550, 101, 31))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(14)
