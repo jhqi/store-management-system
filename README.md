@@ -3,7 +3,9 @@
 
 # 使用说明
 conda create -n py37 python=3.7
+
 pip install openpyxl==2.3.5 -i https://pypi.douban.com/simple/
+
 pip install pyqt5 -i https://pypi.douban.com/simple/
 
 python main.py
