@@ -3,7 +3,7 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 import resources_rc
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog, QHeaderView
 from PyQt5 import QtWidgets
 from material_info import Ui_material_info
 from ctrl_update_material import update_material_window
@@ -130,7 +130,7 @@ class material_info_window(QMainWindow, Ui_material_info):
                 if tper_price == -1:
                     tper_price = '未知'
                 else:
-                    tper_price = format(tper_price, '.4f')
+                    tper_price = format(tper_price, '.2f')
                 item = QStandardItem(tper_price)
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 4, item)
@@ -139,18 +139,29 @@ class material_info_window(QMainWindow, Ui_material_info):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 5, item)
 
-                item = QStandardItem(format(datas[i][6], '.4f'))
+                item = QStandardItem(format(datas[i][6], '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 6, item)
 
-                item = QStandardItem(format(datas[i][7], '.4f'))
+                item = QStandardItem(format(datas[i][7], '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 7, item)
 
         self.tableView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
+        # self.tableView.resizeColumnsToContents()
         self.tableView.resizeRowsToContents()
+        # self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(3, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(4, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(6, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(7, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
     def my_query(self):
         conn = sqlite3.connect("material_management.db")

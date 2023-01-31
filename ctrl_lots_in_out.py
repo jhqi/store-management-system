@@ -3,7 +3,7 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 import resources_rc
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QButtonGroup
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QButtonGroup, QHeaderView
 import datetime
 from lots_in_out import Ui_lots_in_out
 import sqlite3
@@ -23,6 +23,7 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
         self.cancel_pushButton.clicked.connect(self.on_cancel_btn_clicked)
         self.confirm_pushButton.clicked.connect(self.on_confirm_btn_clicked)
         self.fill_table([])
+        self.fill_done_state_table([])
         self.generate_pushButton.setStyleSheet("background:#BFCAE6")
         self.confirm_pushButton.setStyleSheet("background:#BFCAE6")
         self.in_radioButton.setStyleSheet("color:red")
@@ -73,11 +74,13 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
         cur.execute(sql)
         conn.commit()
         #临时表插入新数据
+        done_state=[] #操作完成后的编码、结存数量
         sql=f"insert into tmp values "
-
         if self.in_radioButton.isChecked():  # 入库
             for i in range(len(self.export_data)):
-                new_now_num=str(float(self.export_data[i][5]) + float(self.export_data[i][8]))
+                new_now_num=float(self.export_data[i][5]) + float(self.export_data[i][8])
+                done_state.append([self.export_data[i][0], new_now_num])
+                new_now_num=str(new_now_num)
                 sql+=f"('{self.export_data[i][0]}', {new_now_num})"
                 if i<len(self.export_data)-1:
                     sql+=','
@@ -85,7 +88,9 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
                     sql+=';'
         else:#出库
             for i in range(len(self.export_data)):
-                new_now_num=str(float(self.export_data[i][5]) - float(self.export_data[i][8]))
+                new_now_num = float(self.export_data[i][5]) - float(self.export_data[i][8])
+                done_state.append([self.export_data[i][0], new_now_num])
+                new_now_num = str(new_now_num)
                 sql+=f"('{self.export_data[i][0]}', {new_now_num})"
                 if i<len(self.export_data)-1:
                     sql+=','
@@ -100,13 +105,38 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
         cur.execute(sql)
         conn.commit()
 
+        #更新上次操作状态表
+        self.fill_done_state_table(done_state)
+
         #临时表会自动删除
         cur.close()
         conn.close()
 
-        QMessageBox.question(self, '入库成功！' if self.in_radioButton.isChecked() else '出库成功！', '批量操作完成！', QMessageBox.Yes)
         self.on_clear_btn_clicked()
 
+        QMessageBox.question(self, '入库成功！' if self.in_radioButton.isChecked() else '出库成功！', '各存货结存数量见右上角：\n“操作结果”表' , QMessageBox.Yes)
+
+    def fill_done_state_table(self, datas):  # datas为列表
+        self.done_model = QStandardItemModel(len(datas), 2)
+        self.done_model.setHorizontalHeaderLabels(
+            ['存货编码', '结存数量'])
+        if datas != []:
+            for i in range(0, len(datas)):
+                item = QStandardItem(datas[i][0])
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                self.done_model.setItem(i, 0, item)
+
+                item = QStandardItem(format(float(datas[i][1]), '.2f'))
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                self.done_model.setItem(i, 1, item)
+
+        self.tableView2.setModel(self.done_model)
+        self.tableView2.resizeRowsToContents()
+        self.tableView2.horizontalHeader().setStretchLastSection(True)
+        self.tableView2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView2.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.tableView2.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableView2.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
 
     def fill_table(self, datas):  # datas为列表
@@ -136,11 +166,11 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 4, item)
 
-                item = QStandardItem(format(float(datas[i][5]), '.4f'))
+                item = QStandardItem(format(float(datas[i][5]), '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 5, item)
 
-                item = QStandardItem(format(float(datas[i][6]), '.4f'))
+                item = QStandardItem(format(float(datas[i][6]), '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 6, item)
 
@@ -148,11 +178,11 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 7, item)
 
-                item = QStandardItem(format(float(datas[i][8]), '.4f'))
+                item = QStandardItem(format(float(datas[i][8]), '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 8, item)
 
-                item = QStandardItem(format(float(datas[i][9]), '.4f'))
+                item = QStandardItem(format(float(datas[i][9]), '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 9, item)
 
@@ -165,9 +195,24 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
                 self.model.setItem(i, 11, item)
 
         self.tableView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
+        # self.tableView.resizeColumnsToContents()
         self.tableView.resizeRowsToContents()
+        # self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(3, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(4, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(6, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(7, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(8, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(9, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(10, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(11, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
     def on_clear_btn_clicked(self):
         self.id_textEdit.setPlainText("")

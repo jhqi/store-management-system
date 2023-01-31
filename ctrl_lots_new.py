@@ -3,7 +3,7 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 import resources_rc
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QHeaderView
 from lots_new import Ui_lots_new
 import sqlite3
 
@@ -71,7 +71,7 @@ class lots_new_window(QMainWindow, Ui_lots_new):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 3, item)
 
-                item = QStandardItem(format(float(datas[i][5]), '.4f')) # 单价
+                item = QStandardItem(format(float(datas[i][5]), '.2f')) # 单价
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 4, item)
 
@@ -79,14 +79,24 @@ class lots_new_window(QMainWindow, Ui_lots_new):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 5, item)
 
-                item = QStandardItem(format(float(datas[i][4]), '.4f')) # 期初数量
+                item = QStandardItem(format(float(datas[i][4]), '.2f')) # 期初数量
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 6, item)
 
         self.tableView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
+        # self.tableView.resizeColumnsToContents()
         self.tableView.resizeRowsToContents()
+        # self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(3, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(4, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(6, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
     def on_clear_btn_clicked(self):
         self.id_textEdit.setPlainText("")

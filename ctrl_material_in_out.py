@@ -3,7 +3,7 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 import resources_rc
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QHeaderView
 from material_in_out import Ui_material_in_out
 from objects import In_Log, Out_Log
 import sqlite3
@@ -61,14 +61,22 @@ class material_in_log_window(QMainWindow, Ui_material_in_out):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 3, item)
 
-                item = QStandardItem(format(float(str(datas[i][4])), '.4f'))
+                item = QStandardItem(format(float(str(datas[i][4])), '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 4, item)
 
         self.tableView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
+        # self.tableView.resizeColumnsToContents()
         self.tableView.resizeRowsToContents()
         self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(3, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(4, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+
 
     def on_tableview_select_item(self, event):
         self.selected_row = self.tableView.currentIndex().row()
@@ -125,14 +133,22 @@ class material_in_log_window(QMainWindow, Ui_material_in_out):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 3, item)
 
-                item = QStandardItem(format(float(str(datas[i][4])), '.4f'))
+                item = QStandardItem(format(float(str(datas[i][4])), '.2f'))
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 4, item)
 
         self.tableView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
+        # self.tableView.resizeColumnsToContents()
         self.tableView.resizeRowsToContents()
         self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(3, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setSectionResizeMode(4, QHeaderView.Interactive)
+        self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+
 
     def on_confirm_btn_clicked(self):
         name = self.material_name_lineEdit.text()
@@ -217,10 +233,13 @@ class material_in_log_window(QMainWindow, Ui_material_in_out):
         self.per_price_lineEdit.setText("")
         self.position_lineEdit.setText("")
 
+        display_now_num=format(float(after_num),'.2f')
         if log_type == "入库":
-            QMessageBox.question(self, '入库成功！', '存货成功入库！', QMessageBox.Yes)
+            QMessageBox.question(self, '入库成功！', f'存货成功入库！\n编码：{id}\n结存：{display_now_num}', QMessageBox.Yes)
+            # QMessageBox.question(self, '入库成功！', f'存货成功入库！\n{id}：{display_now_num}', QMessageBox.Yes)
         else:
-            QMessageBox.question(self, '出库成功！', '存货成功出库！', QMessageBox.Yes)
+            QMessageBox.question(self, '出库成功！', f'存货成功出库！\n编码：{id}\n结存：{display_now_num}', QMessageBox.Yes)
+            # QMessageBox.question(self, '出库成功！', f'存货成功出库！\n{id}：{display_now_num}', QMessageBox.Yes)
 
     def on_cancel_btn_clicked(self):
         self.close()
