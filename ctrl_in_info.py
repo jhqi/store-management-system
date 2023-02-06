@@ -30,10 +30,12 @@ class in_info_window(QMainWindow, Ui_in_info):
         cur = conn.cursor()
         sql = "select * from in_log"
         cur.execute(sql)
-        res = cur.fetchall()
+        self.res = cur.fetchall()
         cur.close()
         conn.close()
-        self.fill_table(res)
+        self.is_desc=True
+        sorted_datas=self.sort_tableview_content(self.res, is_desc=self.is_desc)
+        self.fill_table(sorted_datas, is_desc=self.is_desc)
         self.query_btn.clicked.disconnect()
         self.del_btn.clicked.disconnect()
         self.update_btn.clicked.disconnect()
@@ -45,6 +47,22 @@ class in_info_window(QMainWindow, Ui_in_info):
         self.cancel_btn.clicked.connect(self.on_cancel_btn_clicked)
         self.tableView.clicked.connect(self.on_tableview_select_item)
         self.export_excel.clicked.connect(self.on_export_btn_clicked)
+        self.tableView.horizontalHeader().setSectionsClickable(True)
+        self.tableView.horizontalHeader().sectionClicked.connect(self.HorSectionClicked)  # 表头单击信号
+
+    def sort_tableview_content(self, datas, is_desc):
+        if is_desc:
+            sorted_datas=sorted(datas, key=(lambda x:x[0]), reverse=True)
+        else:
+            sorted_datas=sorted(datas, key=(lambda x: x[0]), reverse=False)
+        return sorted_datas
+
+    def HorSectionClicked(self, index):
+        if index>0:
+            return
+        self.is_desc=not self.is_desc
+        sorted_datas=self.sort_tableview_content(self.res, is_desc=self.is_desc)
+        self.fill_table(sorted_datas,is_desc=self.is_desc)
 
     def on_export_btn_clicked(self):
         if self.export_data == []:
@@ -98,17 +116,22 @@ class in_info_window(QMainWindow, Ui_in_info):
         self.selected_row = self.tableView.currentIndex().row()
         # self.tableView.selectRow(self.selected_row)
 
-    def fill_table(self, datas):  # datas为列表
+    def fill_table(self, datas, is_desc=True):  # datas为列表
         self.export_data = datas
         self.model = QStandardItemModel(len(datas), 10)
-        self.model.setHorizontalHeaderLabels(
-            ['日期', '存货编码', '存货名称', '规格型号', '收入数量', '单价(元)', '库存位置', '总价(元)', '使用人', '令号'])
+        if is_desc:
+            self.model.setHorizontalHeaderLabels(
+                ['日期 ↓', '存货编码', '存货名称', '规格型号', '收入数量', '单价(元)', '库存位置', '总价(元)', '使用人', '令号'])
+        else:
+            self.model.setHorizontalHeaderLabels(
+                ['日期 ↑', '存货编码', '存货名称', '规格型号', '收入数量', '单价(元)', '库存位置', '总价(元)', '使用人',
+                 '令号'])
         if datas != []:
             for i in range(0, len(datas)):
                 tdate_year = datas[i][0] // 10000
                 tdate_month = datas[i][0] % 10000 // 100
                 tdate_day = datas[i][0] % 100
-                tdate = str(tdate_year) + "-" + str(tdate_month) + "-" + str(tdate_day)
+                tdate = str(tdate_year) + "-" + str(tdate_month).zfill(2) + "-" + str(tdate_day).zfill(2)
                 item = QStandardItem(tdate)
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.model.setItem(i, 0, item)
@@ -178,6 +201,9 @@ class in_info_window(QMainWindow, Ui_in_info):
         self.tableView.horizontalHeader().setSectionResizeMode(8, QHeaderView.Interactive)
         self.tableView.horizontalHeader().setSectionResizeMode(9, QHeaderView.Interactive)
         self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+        # self.tableView.horizontalHeader().setSectionsClickable(True)
+        # self.tableView.setSortingEnabled(False)
+        # self.tableView.setSortingEnabled(True)
 
     def my_query(self):
         if self.st_num.text() == "":
@@ -294,7 +320,7 @@ class in_info_window(QMainWindow, Ui_in_info):
         return (4, res)
 
     def on_query_btn_clicked(self):
-        (flag, res) = self.my_query()
+        (flag, self.res) = self.my_query()
         if flag == 0:
             QMessageBox.question(self, '查询失败！', '入库数量范围应输入实数！', QMessageBox.Yes)
             self.fill_table([])
@@ -312,7 +338,8 @@ class in_info_window(QMainWindow, Ui_in_info):
             self.fill_table([])
             return
         else:
-            self.fill_table(res)
+            sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
+            self.fill_table(sorted_datas, is_desc=self.is_desc)
             QMessageBox.question(self, '查询成功！', '相关入库记录已列在表中！', QMessageBox.Yes)
 
     def on_tableview_select_item(self, event):
@@ -359,8 +386,9 @@ class in_info_window(QMainWindow, Ui_in_info):
                                          QMessageBox.Yes)
                 cur.close()
                 conn.close()
-                (flag, res) = self.my_query()
-                self.fill_table(res)
+                (flag, self.res) = self.my_query()
+                sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
+                self.fill_table(sorted_datas, is_desc=self.is_desc)
                 return
             sql = "update material set now_num=" + str(new_num) + " where material_id='" + material_id_ll[i] + "'"
             cur.execute(sql)
@@ -370,8 +398,9 @@ class in_info_window(QMainWindow, Ui_in_info):
         cur.close()
         conn.close()
         QMessageBox.question(self, '删除成功！', str(len(indexs)) + '条入库记录已删除', QMessageBox.Yes)
-        (flag, res) = self.my_query()
-        self.fill_table(res)
+        (flag, self.res) = self.my_query()
+        sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
+        self.fill_table(sorted_datas,is_desc=self.is_desc)
         self.selected_row = -1
 
     def on_update_btn_clicked(self):
@@ -397,8 +426,9 @@ class in_info_window(QMainWindow, Ui_in_info):
         self.selected_row = -1
 
     def refresh_after_update(self):
-        (flag, res) = self.my_query()
-        self.fill_table(res)
+        (flag, self.res) = self.my_query()
+        sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
+        self.fill_table(sorted_datas, is_desc=self.is_desc)
 
     def on_cancel_btn_clicked(self):
         self.close()
@@ -414,8 +444,16 @@ class in_info_window(QMainWindow, Ui_in_info):
         self.agree_lineEdit.setText("")
         self.st_num.setText("")
         self.ed_num.setText("")
-        (flag, res) = self.my_query()
-        self.fill_table(res)
+        conn = sqlite3.connect("material_management.db")
+        conn.text_factory = str
+        cur = conn.cursor()
+        sql = "select * from in_log"
+        cur.execute(sql)
+        self.res = cur.fetchall()
+        cur.close()
+        conn.close()
+        sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
+        self.fill_table(sorted_datas, is_desc=self.is_desc)
 
     def keyPressEvent(self, event):
         if str(event.key()) == '16777220' or str(event.key()) == '16777221':

@@ -214,6 +214,7 @@ class lots_in_out_window(QMainWindow, Ui_lots_in_out):
         self.tableView.horizontalHeader().setSectionResizeMode(11, QHeaderView.Interactive)
         self.tableView.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
+
     def on_clear_btn_clicked(self):
         self.id_textEdit.setPlainText("")
         self.num_textEdit.setPlainText("")

@@ -54,6 +54,9 @@ class update_in_log_window(QMainWindow, Ui_update_in_log):
         self.material_id_lineEdit.setReadOnly(True)
         self.material_name_lineEdit.setReadOnly(True)
         self.spec_lineEdit.setReadOnly(True)
+        self.per_price_lineEdit.setReadOnly(True)
+        self.position_lineEdit.setReadOnly(True)
+
 
         self.cancel_pushButton.clicked.connect(self.on_cancel_btn_clicked)
         self.both_btn.clicked.connect(self.on_both_btn_clicked)
