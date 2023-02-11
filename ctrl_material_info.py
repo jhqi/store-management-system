@@ -8,7 +8,7 @@ from PyQt5 import QtWidgets
 from material_info import Ui_material_info
 from ctrl_update_material import update_material_window
 from ctrl_total_data import total_data_window
-import var
+from ctrl_del_confirm import del_confirm_window
 import sqlite3
 from openpyxl import Workbook
 import time
@@ -339,22 +339,12 @@ class material_info_window(QMainWindow, Ui_material_info):
             tid = self.model.item(row_num, 0).text()
             id_ll.append(tid)
 
-        conn = sqlite3.connect("material_management.db")
-        conn.text_factory = str
-        cur = conn.cursor()
-        for tid in id_ll:
-            sql = "delete from material where material_id='" + tid + "'"
-            cur.execute(sql)
-            sql = "delete from in_log where material_id='" + tid + "'"
-            cur.execute(sql)
-            sql = "delete from out_log where material_id='" + tid + "'"
-            cur.execute(sql)
-        conn.commit()
-        cur.close()
-        conn.close()
-        QMessageBox.question(self, '删除成功！', str(len(indexs)) + '条存货已删除！', QMessageBox.Yes)
-        (flag, res) = self.my_query()
-        self.fill_table(res)
+        del_material_num=len(indexs)
+        del_type=1 #删除存货，及存货对应的入库、出库信息
+
+        window=del_confirm_window(del_type=del_type, del_num=del_material_num, del_ids=id_ll)
+        window.del_finish_Signal.connect(self.refresh_after_update)
+        window.show()
 
     def refresh_after_update(self):
         (flag, res) = self.my_query()
@@ -376,8 +366,7 @@ class material_info_window(QMainWindow, Ui_material_info):
             return
         row_num = indexs[0]
         tid = self.model.item(row_num, 0).text()
-        var.tid = tid
-        window = update_material_window()
+        window = update_material_window(tid=tid)
         window.my_Signal.connect(self.refresh_after_update)
         window.show()
 

@@ -4,7 +4,6 @@ import resources_rc
 from sys import argv as SYS_argv
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QApplication
-import var
 import sqlite3
 from home import Ui_home
 from ctrl_new_material import new_material_window
@@ -51,33 +50,27 @@ class homeWindow(QMainWindow, Ui_home):
         window.show()
 
     def on_del_material_btn_clicked(self):
-        var.clear_flag = 1
-        window = clear_confirm_window()
+        window = clear_confirm_window(clear_flag = 1)
         window.show()
 
     def on_del_in_btn_clicked(self):
-        var.clear_flag = 2
-        window = clear_confirm_window()
+        window = clear_confirm_window(clear_flag = 2)
         window.show()
 
     def on_del_out_btn_clicked(self):
-        var.clear_flag = 3
-        window = clear_confirm_window()
+        window = clear_confirm_window(clear_flag = 3)
         window.show()
 
     def on_import_material_btn_clicked(self):
-        var.import_flag = 1
-        window = import_confirm_window()
+        window = import_confirm_window(import_flag = 1)
         window.show()
 
     def on_import_in_log_btn_clicked(self):
-        var.import_flag = 2
-        window = import_confirm_window()
+        window = import_confirm_window(import_flag = 2)
         window.show()
 
     def on_import_out_log_btn_clicked(self):
-        var.import_flag = 3
-        window = import_confirm_window()
+        window = import_confirm_window(import_flag = 3)
         window.show()
 
     def __init__(self):

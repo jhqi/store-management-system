@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog, QHeaderView
 from openpyxl import Workbook
 from in_info import Ui_in_info
 from ctrl_update_in_log import update_in_log_window
-import var
+from ctrl_del_confirm import del_confirm_window
 import datetime
 
 
@@ -369,38 +369,11 @@ class in_info_window(QMainWindow, Ui_in_info):
             t_material_id = self.export_data[row_num][1]
             material_id_ll.append(t_material_id)
 
-        conn = sqlite3.connect("material_management.db")
-        conn.text_factory = str
-        cur = conn.cursor()
-        for i in range(0, len(id_ll)):
-            sql = "select now_num from material where material_id='" + material_id_ll[i] + "'"
-            cur.execute(sql)
-            res = cur.fetchone()
-            now_num = res[0]
-            new_num = now_num - num_ll[i]
-            if new_num < 0:
-                if len(id_ll) == 1:
-                    QMessageBox.question(self, '删除失败！', '若删除该条入库记录，对应结存数量小于0！\n未执行删除！', QMessageBox.Yes)
-                else:
-                    QMessageBox.question(self, '删除出错！', '成功删除' + str(i) + '条入库记录！\n' + '下一条入库记录若删除，对应结存数量小于0，停止删除！',
-                                         QMessageBox.Yes)
-                cur.close()
-                conn.close()
-                (flag, self.res) = self.my_query()
-                sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
-                self.fill_table(sorted_datas, is_desc=self.is_desc)
-                return
-            sql = "update material set now_num=" + str(new_num) + " where material_id='" + material_id_ll[i] + "'"
-            cur.execute(sql)
-            sql = "delete from in_log where in_log_id=" + id_ll[i]
-            cur.execute(sql)
-            conn.commit()
-        cur.close()
-        conn.close()
-        QMessageBox.question(self, '删除成功！', str(len(indexs)) + '条入库记录已删除', QMessageBox.Yes)
-        (flag, self.res) = self.my_query()
-        sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
-        self.fill_table(sorted_datas,is_desc=self.is_desc)
+        del_type=2
+        del_in_log_num=len(indexs)
+        window=del_confirm_window(del_type=del_type, del_num=del_in_log_num, del_ids=id_ll, in_out_nums=num_ll, material_ids=material_id_ll)
+        window.del_finish_Signal.connect(self.refresh_after_update)
+        window.show()
         self.selected_row = -1
 
     def on_update_btn_clicked(self):
@@ -419,8 +392,7 @@ class in_info_window(QMainWindow, Ui_in_info):
             return
         row_num = indexs[0]
         tlog_id = str(self.export_data[row_num][10])
-        var.tin_log_id = tlog_id
-        window = update_in_log_window()
+        window = update_in_log_window(tin_log_id=tlog_id)
         window.my_Signal.connect(self.refresh_after_update)
         window.show()
         self.selected_row = -1

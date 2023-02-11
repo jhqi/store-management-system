@@ -7,21 +7,21 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from update_in_log import Ui_update_in_log
-import var
 from objects import Out_Log
 
 
 class update_in_log_window(QMainWindow, Ui_update_in_log):
-    def __init__(self):
+    def __init__(self, tin_log_id):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.main_window = self
         self.setWindowIcon(QIcon(":/images/image.ico"))
         self.both_btn.clicked.disconnect()
+        self.tin_log_id=tin_log_id
         conn = sqlite3.connect("material_management.db")
         conn.text_factory = str
         cur = conn.cursor()
-        sql = "select * from in_log where in_log_id=" + var.tin_log_id
+        sql = "select * from in_log where in_log_id=" + self.tin_log_id
         cur.execute(sql)
         res = cur.fetchone()
         cur.close()
@@ -32,7 +32,7 @@ class update_in_log_window(QMainWindow, Ui_update_in_log):
         t_month = tdate % 10000 // 100
         t_day = tdate % 100
 
-        self.ori_in_log_id = var.tin_log_id
+        self.ori_in_log_id = self.tin_log_id
         self.dateEdit.setDate(QDate(t_year, t_month, t_day))
         self.material_id_lineEdit.setText(res[1])
         self.material_name_lineEdit.setText(res[2])
@@ -60,6 +60,7 @@ class update_in_log_window(QMainWindow, Ui_update_in_log):
 
         self.cancel_pushButton.clicked.connect(self.on_cancel_btn_clicked)
         self.both_btn.clicked.connect(self.on_both_btn_clicked)
+
 
     # 让多窗口之间传递信号 刷新主窗口信息
     my_Signal = QtCore.pyqtSignal()

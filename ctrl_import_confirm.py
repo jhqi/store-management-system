@@ -7,11 +7,10 @@ import openpyxl
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from import_confirm import Ui_import_confirm
-import var
 
 
 class import_confirm_window(QMainWindow, Ui_import_confirm):
-    def __init__(self):
+    def __init__(self, import_flag):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.main_window = self
@@ -19,10 +18,11 @@ class import_confirm_window(QMainWindow, Ui_import_confirm):
         self.confirm_btn.clicked.disconnect()
         self.confirm_btn.clicked.connect(self.on_confirm_btn_clicked)
         self.cancel_btn.clicked.connect(self.on_cancel_btn_clicked)
-        if var.import_flag == 1:
+        self.import_flag=import_flag
+        if self.import_flag == 1:
             self.label.setText("警告！导入前将删除全部现有存货数据！")
             self.label_2.setText("该操作将删除现有存货数据！")
-        elif var.import_flag == 2:
+        elif self.import_flag == 2:
             self.label.setText("警告！导入前将删除全部现有入库记录！")
             self.label_2.setText("该操作将删除现有入库记录！")
         else:
@@ -35,7 +35,7 @@ class import_confirm_window(QMainWindow, Ui_import_confirm):
 
     def on_confirm_btn_clicked(self):
         try:
-            if var.import_flag == 1:
+            if self.import_flag == 1:
                 t_path = QtWidgets.QFileDialog.getOpenFileName(self, "请选择要读取的文件", "C:/", "Excel表格 (*.xlsx)")
                 if t_path[0] == "":
                     return
@@ -82,7 +82,7 @@ class import_confirm_window(QMainWindow, Ui_import_confirm):
                 conn.close()
                 QMessageBox.question(self, '导入存货成功！', '存货数据已全部导入数据库！', QMessageBox.Yes)
 
-            elif var.import_flag == 2:
+            elif self.import_flag == 2:
                 t_path = QtWidgets.QFileDialog.getOpenFileName(self, "请选择要读取的文件", "C:/", "Excel表格 (*.xlsx)")
                 if t_path[0] == "":
                     return

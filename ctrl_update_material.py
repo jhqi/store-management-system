@@ -5,20 +5,20 @@ from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from update_material import Ui_update_material
-import var
 import sqlite3
 
 
 class update_material_window(QMainWindow, Ui_update_material):
-    def __init__(self):
+    def __init__(self, tid):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.main_window = self
         self.setWindowIcon(QIcon(":/images/image.ico"))
+        self.tid=tid
         conn = sqlite3.connect("material_management.db")
         conn.text_factory = str
         cur = conn.cursor()
-        sql = "select * from material where material_id='" + var.tid + "'"
+        sql = "select * from material where material_id='" + self.tid + "'"
         cur.execute(sql)
         res = cur.fetchone()
         cur.close()

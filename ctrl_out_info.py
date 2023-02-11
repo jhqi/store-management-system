@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog, QHeaderView
 from openpyxl import Workbook
 from out_info import Ui_out_info
 from ctrl_update_out_log import update_out_log_window
-import var
+from ctrl_del_confirm import del_confirm_window
 import datetime
 
 
@@ -371,26 +371,12 @@ class out_info_window(QMainWindow, Ui_out_info):
             t_material_id = self.export_data[row_num][1]
             material_id_ll.append(t_material_id)
 
-        conn = sqlite3.connect("material_management.db")
-        conn.text_factory = str
-        cur = conn.cursor()
-        for i in range(0, len(id_ll)):
-            sql = "select now_num from material where material_id='" + material_id_ll[i] + "'"
-            cur.execute(sql)
-            res = cur.fetchone()
-            now_num = res[0]
-            new_num = now_num + num_ll[i]
-            sql = "update material set now_num=" + str(new_num) + " where material_id='" + material_id_ll[i] + "'"
-            cur.execute(sql)
-            sql = "delete from out_log where out_log_id=" + id_ll[i]
-            cur.execute(sql)
-        conn.commit()
-        cur.close()
-        conn.close()
-        QMessageBox.question(self, '删除成功！', str(len(indexs)) + '条出库记录已删除！', QMessageBox.Yes)
-        (flag, self.res) = self.my_query()
-        sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
-        self.fill_table(sorted_datas, is_desc=self.is_desc)
+        del_type=3
+        del_out_log_num=len(indexs)
+        window=del_confirm_window(del_type=del_type, del_num=del_out_log_num, del_ids=id_ll, in_out_nums=num_ll, material_ids=material_id_ll)
+        window.del_finish_Signal.connect(self.refresh_after_update)
+        window.show()
+
         self.selected_row = -1
 
     def on_update_btn_clicked(self):
@@ -409,8 +395,7 @@ class out_info_window(QMainWindow, Ui_out_info):
             return
         row_num = indexs[0]
         tlog_id = str(self.export_data[row_num][10])
-        var.tout_log_id = tlog_id
-        window = update_out_log_window()
+        window = update_out_log_window(tout_log_id = tlog_id)
         window.my_Signal.connect(self.refresh_after_update)
         window.show()
         self.selected_row = -1

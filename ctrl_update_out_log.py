@@ -7,21 +7,21 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from update_out_log import Ui_update_out_log
-import var
 from objects import In_Log
 
 
 class update_out_log_window(QMainWindow, Ui_update_out_log):
-    def __init__(self):
+    def __init__(self, tout_log_id):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.main_window = self
         self.setWindowIcon(QIcon(":/images/image.ico"))
         self.both_btn.clicked.disconnect()
+        self.tout_log_id=tout_log_id
         conn = sqlite3.connect("material_management.db")
         conn.text_factory = str
         cur = conn.cursor()
-        sql = "select * from out_log where out_log_id=" + var.tout_log_id
+        sql = "select * from out_log where out_log_id=" + self.tout_log_id
         cur.execute(sql)
         res = cur.fetchone()
         cur.close()
@@ -32,7 +32,7 @@ class update_out_log_window(QMainWindow, Ui_update_out_log):
         t_month = tdate % 10000 // 100
         t_day = tdate % 100
 
-        self.ori_out_log_id = var.tout_log_id
+        self.ori_out_log_id = self.tout_log_id
         self.dateEdit.setDate(QDate(t_year, t_month, t_day))
         self.material_id_lineEdit.setText(res[1])
         self.material_name_lineEdit.setText(res[2])

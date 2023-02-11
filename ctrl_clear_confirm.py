@@ -5,11 +5,10 @@ from PyQt5.QtGui import QIcon
 import sqlite3
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from clear_confirm import Ui_clear_confirm
-import var
 
 
 class clear_confirm_window(QMainWindow, Ui_clear_confirm):
-    def __init__(self):
+    def __init__(self, clear_flag):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.main_window = self
@@ -18,11 +17,12 @@ class clear_confirm_window(QMainWindow, Ui_clear_confirm):
         self.setWindowIcon(QIcon(":/images/image.ico"))
         self.confirm_btn.clicked.connect(self.on_confirm_btn_clicked)
         self.cancel_btn.clicked.connect(self.on_cancel_btn_clicked)
-        if var.clear_flag == 1:
+        self.clear_flag=clear_flag
+        if self.clear_flag == 1:
             self.label.setText("警告！  确认清空所有存货数据？？")
             self.label_2.setText("将要删除存货数据！")
             self.label_2.setStyleSheet('background-color:red')
-        elif var.clear_flag == 2:
+        elif self.clear_flag == 2:
             self.label.setText("警告！  确认清空所有入库数据？？")
             self.label_2.setText("将要删除入库数据！")
             self.label_2.setStyleSheet('background-color:red')
@@ -32,7 +32,7 @@ class clear_confirm_window(QMainWindow, Ui_clear_confirm):
             self.label_2.setStyleSheet('background-color:red')
 
     def on_confirm_btn_clicked(self):
-        if var.clear_flag == 1:
+        if self.clear_flag == 1:
             conn = sqlite3.connect("material_management.db")
             conn.text_factory = str
             cur = conn.cursor()
@@ -45,7 +45,7 @@ class clear_confirm_window(QMainWindow, Ui_clear_confirm):
             cur.close()
             conn.close()
             QMessageBox.question(self, '删除成功！', '存货数据已全部删除！', QMessageBox.Yes)
-        elif var.clear_flag == 2:
+        elif self.clear_flag == 2:
             conn = sqlite3.connect("material_management.db")
             conn.text_factory = str
             cur = conn.cursor()
@@ -59,7 +59,7 @@ class clear_confirm_window(QMainWindow, Ui_clear_confirm):
             cur.close()
             conn.close()
             QMessageBox.question(self, '删除成功！', '入库数据已全部删除！', QMessageBox.Yes)
-        elif var.clear_flag == 3:
+        elif self.clear_flag == 3:
             conn = sqlite3.connect("material_management.db")
             conn.text_factory = str
             cur = conn.cursor()
