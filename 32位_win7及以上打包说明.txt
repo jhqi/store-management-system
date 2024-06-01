@@ -1,7 +1,12 @@
+如果需要软件兼容32位老机器，则在32位环境下打包，64位机器可兼容使用32位软件
 set CONDA_FORCE_32BIT=1
-conda create -n py37_win32 python=3.7
-conda activate py37_win32
-pip install openpyxl==2.3.5 -i https://pypi.douban.com/simple/
-pip install pyinstaller -i https://pypi.douban.com/simple/
-pip install pyqt5 -i https://pypi.douban.com/simple/
+
+conda create -n store32 python=3.7
+conda activate store32
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+pip install openpyxl==2.3.5
+pip install pyinstaller==5.13.2
+pip install pyqt5==5.15
 在目录下：pyinstaller -w -i images/image.ico main.py
+
+ps: 安装pyqt5如果报错，需要先安装C++编译环境，可以直接下载visual studio社区版，安装C++桌面开发对应内容即可

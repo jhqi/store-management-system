@@ -22,7 +22,8 @@ class in_info_window(QMainWindow, Ui_in_info):
         self.setWindowIcon(QIcon(":/images/image.ico"))
         self.query_btn.setStyleSheet("background:#FF95CA")
         self.st_dateEdit.setDate(QDate(2000, 1, 1))
-        self.ed_dateEdit.setDate(QDate(2050, 12, 31))
+        d = datetime.datetime.now()
+        self.ed_dateEdit.setDate(QDate(d.year, d.month, d.day))
         self.selected_row = -1
         self.export_data = []
         conn = sqlite3.connect("material_management.db")
@@ -238,19 +239,19 @@ class in_info_window(QMainWindow, Ui_in_info):
 
         if self.id.text() != "":
             id_str = self.id.text()
-            id_str = id_str.strip('%\n\t ')
-            id_ll = id_str.split('%')
+            id_str = id_str.strip(';\n\t ')
+            id_ll = id_str.split(';')
             sql += " and ("
             for i in range(len(id_ll)):
-                sql += "material_id='" + id_ll[i] + "'"
+                sql += f"material_id like \'%{id_ll[i]}%\'"
                 if i < len(id_ll) - 1:
                     sql += " or "
             sql += ")"
 
         if self.name.text() != "":
             name_str = self.name.text()
-            name_str = name_str.strip('%\n\t ')
-            name_ll = name_str.split('%')
+            name_str = name_str.strip(';\n\t ')
+            name_ll = name_str.split(';')
             name_ll1 = []
             name_ll2 = []
             for tname in name_ll:
@@ -264,50 +265,50 @@ class in_info_window(QMainWindow, Ui_in_info):
             sql += ")"
 
         if self.spec_lineEdit.text() != "":
-            name_str = self.spec_lineEdit.text()
-            name_str = name_str.strip('%\n\t ')
-            name_ll = name_str.split('%')
-            name_ll1 = []
-            name_ll2 = []
-            for tname in name_ll:
-                name_ll1.append("%" + tname + "%")
-                name_ll2.append("%%" + tname + "%%")
+            spec_str = self.spec_lineEdit.text()
+            spec_str = spec_str.strip(';\n\t ')
+            spec_ll = spec_str.split(';')
+            spec_ll1 = []
+            spec_ll2 = []
+            for tspec in spec_ll:
+                spec_ll1.append("%" + tspec + "%")
+                spec_ll2.append("%%" + tspec + "%%")
             sql += " and ("
-            for i in range(len(name_ll)):
-                sql += "spec like '" + name_ll1[i] + "' or spec like '" + name_ll2[i] + "'"
-                if i < len(name_ll) - 1:
+            for i in range(len(spec_ll)):
+                sql += "spec like '" + spec_ll1[i] + "' or spec like '" + spec_ll2[i] + "'"
+                if i < len(spec_ll) - 1:
                     sql += " or "
             sql += ")"
 
         if self.user_lineEdit.text() != "":
-            name_str = self.user_lineEdit.text()
-            name_str = name_str.strip('%\n\t ')
-            name_ll = name_str.split('%')
-            name_ll1 = []
-            name_ll2 = []
-            for tname in name_ll:
-                name_ll1.append("%" + tname + "%")
-                name_ll2.append("%%" + tname + "%%")
+            user_str = self.user_lineEdit.text()
+            user_str = user_str.strip(';\n\t ')
+            user_ll = user_str.split(';')
+            user_ll1 = []
+            user_ll2 = []
+            for tuser in user_ll:
+                user_ll1.append("%" + tuser + "%")
+                user_ll2.append("%%" + tuser + "%%")
             sql += " and ("
-            for i in range(len(name_ll)):
-                sql += "user_man like '" + name_ll1[i] + "' or user_man like '" + name_ll2[i] + "'"
-                if i < len(name_ll) - 1:
+            for i in range(len(user_ll)):
+                sql += "user_man like '" + user_ll1[i] + "' or user_man like '" + user_ll2[i] + "'"
+                if i < len(user_ll) - 1:
                     sql += " or "
             sql += ")"
 
         if self.agree_lineEdit.text() != "":
-            name_str = self.agree_lineEdit.text()
-            name_str = name_str.strip('%\n\t ')
-            name_ll = name_str.split('%')
-            name_ll1 = []
-            name_ll2 = []
-            for tname in name_ll:
-                name_ll1.append("%" + tname + "%")
-                name_ll2.append("%%" + tname + "%%")
+            agree_str = self.agree_lineEdit.text()
+            agree_str = agree_str.strip(';\n\t ')
+            agree_ll = agree_str.split(';')
+            agree_ll1 = []
+            agree_ll2 = []
+            for tagree in agree_ll:
+                agree_ll1.append("%" + tagree + "%")
+                agree_ll2.append("%%" + tagree + "%%")
             sql += " and ("
-            for i in range(len(name_ll)):
-                sql += "agree_man like '" + name_ll1[i] + "' or agree_man like '" + name_ll2[i] + "'"
-                if i < len(name_ll) - 1:
+            for i in range(len(agree_ll)):
+                sql += "agree_man like '" + agree_ll1[i] + "' or agree_man like '" + agree_ll2[i] + "'"
+                if i < len(agree_ll) - 1:
                     sql += " or "
             sql += ")"
 
@@ -320,6 +321,21 @@ class in_info_window(QMainWindow, Ui_in_info):
         return (4, res)
 
     def on_query_btn_clicked(self):
+        #判断一下截至日期是否超过当天
+        ed_date = self.ed_dateEdit.date().toString(Qt.ISODate)
+        ll = ed_date.split('-')
+        ed_date = "".join(ll)
+
+        d = datetime.datetime.now()
+        today_date=f'{str(d.year).zfill(4)}{str(d.month).zfill(2)}{str(d.day).zfill(2)}'
+
+        if ed_date>today_date:
+            QMessageBox.question(self, '查询失败！', '截止日期不应超出当天！', QMessageBox.Yes)
+            self.fill_table([])
+            d = datetime.datetime.now()
+            self.ed_dateEdit.setDate(QDate(d.year, d.month, d.day))
+            return
+
         (flag, self.res) = self.my_query()
         if flag == 0:
             QMessageBox.question(self, '查询失败！', '入库数量范围应输入实数！', QMessageBox.Yes)
@@ -341,10 +357,6 @@ class in_info_window(QMainWindow, Ui_in_info):
             sorted_datas = self.sort_tableview_content(self.res, is_desc=self.is_desc)
             self.fill_table(sorted_datas, is_desc=self.is_desc)
             QMessageBox.question(self, '查询成功！', '相关入库记录已列在表中！', QMessageBox.Yes)
-
-    def on_tableview_select_item(self, event):
-        self.selected_row = self.tableView.currentIndex().row()
-        # self.tableView.selectRow(self.selected_row)
 
     def on_del_btn_clicked(self):
         indexs = self.tableView.selectionModel().selectedIndexes()
@@ -407,7 +419,8 @@ class in_info_window(QMainWindow, Ui_in_info):
 
     def on_clear_query_btn_clicked(self):
         self.st_dateEdit.setDate(QDate(2000, 1, 1))
-        self.ed_dateEdit.setDate(QDate(2050, 12, 31))
+        d = datetime.datetime.now()
+        self.ed_dateEdit.setDate(QDate(d.year, d.month, d.day))
         self.spec_lineEdit.setText("")
         self.selected_row = -1
         self.id.setText("")

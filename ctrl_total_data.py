@@ -77,9 +77,5 @@ class total_data_window(QMainWindow, Ui_total_data):
             self.lineEdit_5.setText(str(total_reduce_num) + '/' + total_reduce_rate)
             self.lineEdit_6.setText("无效，期初总量等于0")
 
-
-
-
-
     def on_cancel_btn_clicked(self):
         self.close()

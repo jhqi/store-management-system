@@ -260,9 +260,9 @@ class material_in_log_window(QMainWindow, Ui_material_in_out):
             has_where = False
             if self.material_id_lineEdit.text() != "":
                 if has_where == True:
-                    sql += " and material_id='" + self.material_id_lineEdit.text() + "'"
+                    sql+=f" and where material_id like \'%{self.material_id_lineEdit.text()}%\'"
                 else:
-                    sql += "where material_id='" + self.material_id_lineEdit.text() + "'"
+                    sql += f"where material_id like \'%{self.material_id_lineEdit.text()}%\'"
                     has_where = True
             if self.material_name_lineEdit != "":
                 name = self.material_name_lineEdit.text()

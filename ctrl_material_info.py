@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog, QHeaderView
 from PyQt5 import QtWidgets
 from material_info import Ui_material_info
 from ctrl_update_material import update_material_window
-from ctrl_total_data import total_data_window
 from ctrl_del_confirm import del_confirm_window
 import sqlite3
 from openpyxl import Workbook
@@ -36,7 +35,6 @@ class material_info_window(QMainWindow, Ui_material_info):
         self.fill_table(res)
 
         # self.query_btn.clicked.disconnect()
-        self.total_data_btn.clicked.disconnect()
 
         self.del_material_btn.clicked.connect(self.on_del_material_btn_clicked)
         # self.del_both_btn.clicked.connect(self.on_del_both_btn_clicked)
@@ -46,7 +44,6 @@ class material_info_window(QMainWindow, Ui_material_info):
         self.clear_query_info.clicked.connect(self.on_clear_query_btn_clicked)
         self.tableView.clicked.connect(self.on_tableview_select_item)
         self.export_excel.clicked.connect(self.on_export_btn_clicked)
-        self.total_data_btn.clicked.connect(self.on_total_data_btn_clicked)
 
         # self.query_btn_lock=False
         # self.query_btn.installEventFilter(self)
@@ -56,20 +53,6 @@ class material_info_window(QMainWindow, Ui_material_info):
     #         self.query_btn_lock = False
     #         return True
     #     return False
-    def on_total_data_btn_clicked(self):
-        conn = sqlite3.connect("material_management.db")
-        conn.text_factory = str
-        cur = conn.cursor()
-        sql="select count(*) from material"
-        cur.execute(sql)
-        res=cur.fetchone()
-        if res[0]==0:
-            QMessageBox.question(self, '汇总统计失败！', '存货表为空！', QMessageBox.Yes)
-            return
-
-        window = total_data_window()
-        window.show()
-
 
     def on_export_btn_clicked(self):
         if self.export_data == []:
@@ -217,19 +200,19 @@ class material_info_window(QMainWindow, Ui_material_info):
         sql = "select * from material where (now_num between " + st_num + " and " + ed_num + " ) and (per_price between " + st_per_price + " and " + ed_per_price + " or per_price=-1) "
         if self.id.text() != "":
             id_ll = self.id.text()
-            id_ll = id_ll.strip('%\n\t ')
-            id_ll = id_ll.split('%')
+            id_ll = id_ll.strip(';\n\t ')
+            id_ll = id_ll.split(';')
             sql += " and ("
             for i in range(len(id_ll)):
-                sql += "material_id='" + id_ll[i] + "'"
+                sql += f"material_id like \'%{id_ll[i]}%\'"
                 if i < len(id_ll) - 1:
                     sql += " or "
             sql += ")"
 
         if self.name.text() != "":
             name_ll = self.name.text()
-            name_ll = name_ll.strip('%\n\t ')
-            name_ll = name_ll.split('%')
+            name_ll = name_ll.strip(';\n\t ')
+            name_ll = name_ll.split(';')
             name_ll1 = []
             name_ll2 = []
             for tname in name_ll:
@@ -244,8 +227,8 @@ class material_info_window(QMainWindow, Ui_material_info):
 
         if self.spec_lineEdit.text() != "":
             spec_ll = self.spec_lineEdit.text()
-            spec_ll = spec_ll.strip('%\n\t ')
-            spec_ll = spec_ll.split('%')
+            spec_ll = spec_ll.strip(';\n\t ')
+            spec_ll = spec_ll.split(';')
             spec_ll1 = []
             spec_ll2 = []
             for tspec in spec_ll:
@@ -260,8 +243,8 @@ class material_info_window(QMainWindow, Ui_material_info):
 
         if self.position_lineEdit.text() != "":
             pos_ll = self.position_lineEdit.text()
-            pos_ll = pos_ll.strip('%\n\t ')
-            pos_ll = pos_ll.split('%')
+            pos_ll = pos_ll.strip(';\n\t ')
+            pos_ll = pos_ll.split(';')
             pos_ll1 = []
             pos_ll2 = []
             for tpos in pos_ll:

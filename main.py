@@ -3,7 +3,7 @@ import os
 import resources_rc
 from sys import argv as SYS_argv
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 import sqlite3
 from home import Ui_home
 from ctrl_new_material import new_material_window
@@ -15,6 +15,8 @@ from ctrl_clear_confirm import clear_confirm_window
 from ctrl_import_confirm import import_confirm_window
 from ctrl_lots_new import lots_new_window
 from ctrl_lots_in_out import lots_in_out_window
+from ctrl_total_data import total_data_window
+from ctrl_shoufacun_info import shoufacun_info_window
 
 
 class homeWindow(QMainWindow, Ui_home):
@@ -73,6 +75,23 @@ class homeWindow(QMainWindow, Ui_home):
         window = import_confirm_window(import_flag = 3)
         window.show()
 
+    def on_total_data_btn_clicked(self):
+        conn = sqlite3.connect("material_management.db")
+        conn.text_factory = str
+        cur = conn.cursor()
+        sql = "select count(*) from material"
+        cur.execute(sql)
+        res = cur.fetchone()
+        if res[0] == 0:
+            QMessageBox.question(self, '汇总统计失败！', '存货表为空！', QMessageBox.Yes)
+            return
+        window = total_data_window()
+        window.show()
+
+    def on_shoufacun_btn_clicked(self):
+        window = shoufacun_info_window()
+        window.show()
+
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
@@ -87,7 +106,8 @@ class homeWindow(QMainWindow, Ui_home):
 
         self.new_material_pushButton.setStyleSheet("background:#d0d0d0")
         self.lots_new_material_pushButton.setStyleSheet("background:#d0d0d0")
-        self.in_material_pushButton.setStyleSheet("background:#d0d0d0")
+        self.total_data_btn.setStyleSheet("background:#d0d0d0")
+        self.shoufacun_btn.setStyleSheet("background:#d0d0d0")
         self.material_info_btn.setStyleSheet("background:#d0d0d0")
         self.clear_material_btn.setStyleSheet("background:#d0d0d0")
         self.import_material_btn.setStyleSheet("background:#d0d0d0")
@@ -120,6 +140,9 @@ class homeWindow(QMainWindow, Ui_home):
         self.in_info_btn.clicked.disconnect()
         self.out_info_btn.clicked.disconnect()
         self.import_material_btn.clicked.disconnect()
+        self.total_data_btn.clicked.disconnect()
+        self.shoufacun_btn.clicked.disconnect()
+
         # self.import_in_info_btn.clicked.disconnect()
         # self.import_out_info_btn.clicked.disconnect()
 
@@ -136,6 +159,8 @@ class homeWindow(QMainWindow, Ui_home):
         self.import_out_info_btn.clicked.connect(self.on_import_out_log_btn_clicked)
         self.lots_pushButton.clicked.connect(self.on_lots_in_out_btn_clicked)
         self.lots_new_material_pushButton.clicked.connect(self.on_lots_new_material_btn_clicked)
+        self.total_data_btn.clicked.connect(self.on_total_data_btn_clicked)
+        self.shoufacun_btn.clicked.connect(self.on_shoufacun_btn_clicked)
 
 
 
